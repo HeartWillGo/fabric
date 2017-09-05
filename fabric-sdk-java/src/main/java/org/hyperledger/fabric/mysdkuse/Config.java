@@ -11,24 +11,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.hyperledger.fabric.sdk.testutils;
+package org.hyperledger.fabric.mysdkuse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hyperledger.fabric.sdk.ProposalResponse;
+import org.hyperledger.fabric.sdk.helper.Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hyperledger.fabric.sdk.helper.Utils;
-import org.hyperledger.fabric.sdkintegration.SampleOrg;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Config allows for a global config of the toolkit. Central location for all
@@ -44,8 +42,8 @@ import org.hyperledger.fabric.sdkintegration.SampleOrg;
  * Test Configuration
  */
 
-public class TestConfig {
-    private static final Log logger = LogFactory.getLog(TestConfig.class);
+public class Config {
+    private static final Log logger = LogFactory.getLog(Config.class);
 
     private static final String DEFAULT_CONFIG = "src/test/java/org/hyperledger/fabric/sdk/testutils.properties";
     private static final String ORG_HYPERLEDGER_FABRIC_SDK_CONFIGURATION = "org.hyperledger.fabric.sdktest.configuration";
@@ -61,14 +59,34 @@ public class TestConfig {
 
     private static final String INTEGRATIONTESTSTLS = PROPBASE + "integrationtests.tls";
 
-    private static TestConfig config;
+    private static Config config;
     private static final Properties sdkProperties = new Properties();
     private final boolean runningTLS;
     private final boolean runningFabricCATLS;
     private final boolean runningFabricTLS;
+
+    //配置
+    public  static final String TEST_ADMIN_NAME = "admin";
+    public static final String TESTUSER_1_NAME = "user1";
+    public static final String TEST_FIXTURES_PATH = "src/test/fixture";
+
+    public static final String CHAIN_CODE_NAME = "chaincode_asset";
+    public static final String CHAIN_CODE_PATH = "github.com/example_cc";
+    public static final String CHAIN_CODE_VERSION = "1";
+
+    public static final String FOO_CHANNEL_NAME = "foo";
+    public static final String BAR_CHANNEL_NAME = "bar";
+
+    public static final byte[] EXPECTED_EVENT_DATA = "!".getBytes(UTF_8);
+    public static final String EXPECTED_EVENT_NAME = "event";
+
+    public String testTxID = null;  // save the CC invoke TxID and use in queries
+
+
+
     private static final HashMap<String, SampleOrg> sampleOrgs = new HashMap<>();
 
-    private TestConfig() {
+    private Config() {
         File loadFile;
         FileInputStream configProps;
 
@@ -202,9 +220,9 @@ public class TestConfig {
      *
      * @return Global configuration
      */
-    public static TestConfig getConfig() {
+    public static Config getConfig() {
         if (null == config) {
-            config = new TestConfig();
+            config = new Config();
         }
         return config;
 
