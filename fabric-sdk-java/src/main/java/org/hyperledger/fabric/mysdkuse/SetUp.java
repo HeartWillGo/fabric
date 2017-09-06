@@ -29,13 +29,13 @@ public class SetUp {
             System.out.println("client:" + client.toString());
             client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
 
-            System.out.println("client CryptoSuite:" + client.getCryptoSuite());
+          //  System.out.println("client CryptoSuite:" + client.getCryptoSuite());
         }catch (Exception e){
             e.printStackTrace();
         }
         return client;
     }
-    public void SetupUsers(Collection<SampleOrg> sampleOrgs){
+    public void InitUsers(Collection<SampleOrg> sampleOrgs){
 
         File sampleStoreFile = new File(System.getProperty("java.io.tmpdir") + "/HFCSampletest.properties");
         //  System.out.println("pathname :"+System.getProperty("java.io.tmpdir") + "/HFCSampletest.properties");
@@ -115,6 +115,30 @@ public class SetUp {
 
         }
 
+
+    }
+    public void SetupUsers(Collection<SampleOrg> sampleOrgs){
+        File sampleStoreFile = new File(System.getProperty("java.io.tmpdir") + "/HFCSampletest.properties");
+        final SampleStore sampleStore = new SampleStore(sampleStoreFile);
+
+        //SampleUser can be any implementation that implements org.hyperledger.fabric.sdk.User Interface
+
+        ////////////////////////////
+        // get users for all orgs
+
+        for (SampleOrg sampleOrg : sampleOrgs) {
+
+            final String orgName = sampleOrg.getName();
+
+            SampleUser admin = sampleStore.getMember(ADMIN_NAME, orgName);
+            sampleOrg.setAdmin(admin); // The admin of this org.
+
+            // No need to enroll or register all done in End2endIt !
+            SampleUser user = sampleStore.getMember(USER_NAME, orgName);
+            sampleOrg.addUser(user);  //Remember user belongs to this Org
+
+            sampleOrg.setPeerAdmin(sampleStore.getMember(orgName + "Admin", orgName));
+        }
 
     }
 }
