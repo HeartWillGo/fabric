@@ -45,7 +45,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class Config {
     private static final Log logger = LogFactory.getLog(Config.class);
 
-    private static final String DEFAULT_CONFIG = "src/test/java/org/hyperledger/fabric/sdk/testutils.properties";
+    private static final String DEFAULT_CONFIG = "src/main/java/org/hyperledger/fabric/sdk/testutils.properties";
     private static final String ORG_HYPERLEDGER_FABRIC_SDK_CONFIGURATION = "org.hyperledger.fabric.sdktest.configuration";
 
     private static final String PROPBASE = "org.hyperledger.fabric.sdktest.";
@@ -68,10 +68,10 @@ public class Config {
     //配置
     public  static final String TEST_ADMIN_NAME = "admin";
     public static final String TESTUSER_1_NAME = "user1";
-    public static final String TEST_FIXTURES_PATH = "src/test/fixture";
+    public static final String TEST_FIXTURES_PATH = "src/main/fixture";
 
     public static final String CHAIN_CODE_NAME = "chaincode_asset";
-    public static final String CHAIN_CODE_PATH = "github.com/example_cc";
+    public static final String CHAIN_CODE_PATH = "github.com/chaincode_asset";
     public static final String CHAIN_CODE_VERSION = "1";
 
     public static final String FOO_CHANNEL_NAME = "foo";
@@ -112,17 +112,17 @@ public class Config {
             //////
             defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg1.mspid", "Org1MSP");
             defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg1.domname", "org1.example.com");
-            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg1.ca_location", "http://113.209.100.15:7054");
+            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg1.ca_location", "http://192.168.191.3:7054");
             defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg1.caName", "ca0");
-            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg1.peer_locations", "peer0.org1.example.com@grpc://113.209.100.15:7051, peer1.org1.example.com@grpc://113.209.100.15:7056");
-            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg1.orderer_locations", "orderer.example.com@grpc://113.209.100.15:7050");
-            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg1.eventhub_locations", "peer0.org1.example.com@grpc://113.209.100.15:7053,peer1.org1.example.com@grpc://113.209.100.15:7058");
+            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg1.peer_locations", "peer0.org1.example.com@grpc://192.168.191.3:7051, peer1.org1.example.com@grpc://192.168.191.3:7056");
+            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg1.orderer_locations", "orderer.example.com@grpc://192.168.191.3:7050");
+            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg1.eventhub_locations", "peer0.org1.example.com@grpc://192.168.191.3:7053,peer1.org1.example.com@grpc://192.168.191.3:7058");
             defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg2.mspid", "Org2MSP");
             defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg2.domname", "org2.example.com");
-            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg2.ca_location", "http://113.209.100.15:8054");
-            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg2.peer_locations", "peer0.org2.example.com@grpc://113.209.100.15:8051,peer1.org2.example.com@grpc://113.209.100.15:8056");
-            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg2.orderer_locations", "orderer.example.com@grpc://113.209.100.15:7050");
-            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg2.eventhub_locations", "peer0.org2.example.com@grpc://113.209.100.15:8053, peer1.org2.example.com@grpc://113.209.100.15:8058");
+            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg2.ca_location", "http://192.168.191.3:8054");
+            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg2.peer_locations", "peer0.org2.example.com@grpc://192.168.191.3:8051,peer1.org2.example.com@grpc://192.168.191.3:8056");
+            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg2.orderer_locations", "orderer.example.com@grpc://192.168.191.3:7050");
+            defaultProperty(INTEGRATIONTESTS_ORG + "peerOrg2.eventhub_locations", "peer0.org2.example.com@grpc://192.168.191.3:8053, peer1.org2.example.com@grpc://192.168.191.3:8058");
 
             defaultProperty(INTEGRATIONTESTSTLS, null);
             runningTLS = null != sdkProperties.getProperty(INTEGRATIONTESTSTLS, null);

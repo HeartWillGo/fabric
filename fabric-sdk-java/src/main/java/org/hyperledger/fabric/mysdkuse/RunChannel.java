@@ -15,13 +15,11 @@ import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RunChannel {
-    private   Config testConfig  ;
-    static  Collection<ProposalResponse> responses;
-    static Collection<ProposalResponse> successful = new LinkedList<>();
-    static Collection<ProposalResponse> failed = new LinkedList<>();
-    public RunChannel(Config testConfig){
-        this.testConfig=testConfig;
-    }
+    private static final Config testConfig = Config.getConfig();
+    static  Collection<ProposalResponse> responses=ResponseMsg.responses;
+    static Collection<ProposalResponse> successful = ResponseMsg.successful;
+    static Collection<ProposalResponse> failed = ResponseMsg.failed;
+
 
 
 
@@ -34,11 +32,8 @@ public class RunChannel {
 
 
             instantiateProposalRequest.setProposalWaitTime(testConfig.getProposalWaitTime());
-            System.out.println("instantiateProposalRequest :" + instantiateProposalRequest.getProposalWaitTime());
             instantiateProposalRequest.setChaincodeID(chaincodeID);
-            System.out.println("instantiateProposalRequest chaincode Id:" + chaincodeID);
             instantiateProposalRequest.setFcn("init");
-            System.out.println("instantiateProposalRequest Fcn:" + instantiateProposalRequest.getFcn());
             instantiateProposalRequest.setArgs(new String[]{"001", "aaa", "1"});
             Map<String, byte[]> tm = new HashMap<>();
             tm.put("HyperLedgerFabric", "InstantiateProposalRequest:JavaSDK".getBytes(UTF_8));
@@ -52,11 +47,8 @@ public class RunChannel {
             ChaincodeEndorsementPolicy chaincodeEndorsementPolicy = new ChaincodeEndorsementPolicy();
 
             chaincodeEndorsementPolicy.fromYamlFile(new File(testConfig.TEST_FIXTURES_PATH + "/sdkintegration/chaincodeendorsementpolicy.yaml"));
-            System.out.println("chaincodeEndorsementPolicy:" + chaincodeEndorsementPolicy.getChaincodeEndorsementPolicyAsBytes().toString());
-            instantiateProposalRequest.setChaincodeEndorsementPolicy(chaincodeEndorsementPolicy);
-
-            out("Sending instantiateProposalRequest to all peers with arguments: a and b set to 100 and %s respectively", "" + (200 + delta));
-            successful.clear();
+             instantiateProposalRequest.setChaincodeEndorsementPolicy(chaincodeEndorsementPolicy);
+             successful.clear();
             failed.clear();
 
             if (isFooChain) {  //Send responses both ways with specifying peers and by using those on the channel.
@@ -84,114 +76,11 @@ public class RunChannel {
 
 
     }
-    /// Send transaction proposal to all peers
-    public  void SendtTansactionToPeers(HFClient client, Channel channel,ChaincodeID chaincodeID){
-        try {
-            TransactionProposalRequest transactionProposalRequest = client.newTransactionProposalRequest();
-            transactionProposalRequest.setChaincodeID(chaincodeID);
-            transactionProposalRequest.setFcn("invoke");
-            transactionProposalRequest.setProposalWaitTime(testConfig.getProposalWaitTime());
-            transactionProposalRequest.setArgs(new String[]{"query", "001"});
 
-            Map<String, byte[]> tm2 = new HashMap<>();
-            tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8)); //Just some extra junk in transient map
-            tm2.put("method", "TransactionProposalRequest".getBytes(UTF_8)); // ditto
-            tm2.put("result", ":)".getBytes(UTF_8));  // This should be returned see chaincode why.
-            tm2.put(testConfig.EXPECTED_EVENT_NAME,testConfig. EXPECTED_EVENT_DATA);  //This should trigger an event see chaincode why.
 
-            transactionProposalRequest.setTransientMap(tm2);
-
-            out("sending transactionProposal to all peers with arguments: move(a,b,100)");
-
-            Collection<ProposalResponse> transactionPropResp = channel.sendTransactionProposal(transactionProposalRequest, channel.getPeers());
-            for (ProposalResponse response : transactionPropResp) {
-                if (response.getStatus() == ProposalResponse.Status.SUCCESS) {
-                    out("Successful transaction proposal response Txid: %s from peer %s", response.getTransactionID(), response.getPeer().getName());
-                    successful.add(response);
-                } else {
-                    failed.add(response);
-                }
-            }
-
-            // Check that all the proposals are consistent with each other. We should have only one set
-            // where all the proposals above are consistent. Note the when sending to Orderer this is done automatically.
-            //  Shown here as an example that applications can invoke and select.
-            // See org.hyperledger.fabric.sdk.proposal.consistency_validation config property.
-            Collection<Set<ProposalResponse>> proposalConsistencySets = SDKUtils.getProposalConsistencySets(transactionPropResp);
-            if (proposalConsistencySets.size() != 1) {
-                //fail(format("Expected only one set of consistent proposal responses but got %d", proposalConsistencySets.size()));
-            }
-
-            out("Received %d transaction proposal responses. Successful+verified: %d . Failed: %d",
-                    transactionPropResp.size(), successful.size(), failed.size());
-            if (failed.size() > 0) {
-                ProposalResponse firstTransactionProposalResponse = failed.iterator().next();
-//                        fail("Not enough endorsers for invoke(move a,b,100):" + failed.size() + " endorser error: " +
-//                                firstTransactionProposalResponse.getMessage() +
-//                                ". Was verified: " + firstTransactionProposalResponse.isVerified());
-            }
-            out("Successfully received transaction proposal responses.");
-
-            ProposalResponse resp = transactionPropResp.iterator().next();
-            byte[] x = resp.getChaincodeActionResponsePayload(); // This is the data returned by the chaincode.
-            String resultAsString = null;
-            if (x != null) {
-                resultAsString = new String(x, "UTF-8");
-            }
-//                    assertEquals(":)", resultAsString);
-//
-//                    assertEquals(200, resp.getChaincodeActionResponseStatus()); //Chaincode's status.
-
-            TxReadWriteSetInfo readWriteSetInfo = resp.getChaincodeActionResponseReadWriteSetInfo();
-            //See blockwalker below how to transverse this
-//                    assertNotNull(readWriteSetInfo);
-//                    assertTrue(readWriteSetInfo.getNsRwsetCount() > 0);
-
-            ChaincodeID cid = resp.getChaincodeID();
-//                    assertNotNull(cid);
-//                    assertEquals(CHAIN_CODE_PATH, cid.getPath());
-//                    assertEquals(CHAIN_CODE_NAME, cid.getName());
-//                    assertEquals(CHAIN_CODE_VERSION, cid.getVersion());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-    }
     ////////////////////////////
     // Send Query Proposal to all peers
     //
-    public static void SendQuryToPeers(HFClient client, Channel channel,ChaincodeID chaincodeID,int delta){
-        try {
-            String expect = "" + (300 + delta);
-            out("Now query chaincode for the value of b.");
-            QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
-            queryByChaincodeRequest.setArgs(new String[]{"query", "001"});
-            queryByChaincodeRequest.setFcn("invoke");
-            queryByChaincodeRequest.setChaincodeID(chaincodeID);
-
-            Map<String, byte[]> tm2 = new HashMap<>();
-            tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
-            tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
-            queryByChaincodeRequest.setTransientMap(tm2);
-
-            Collection<ProposalResponse> queryProposals = channel.queryByChaincode(queryByChaincodeRequest, channel.getPeers());
-            for (ProposalResponse proposalResponse : queryProposals) {
-                if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
-//                            fail("Failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() +
-//                                    ". Messages: " + proposalResponse.getMessage()
-//                                    + ". Was verified : " + proposalResponse.isVerified());
-                } else {
-                    String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
-                    out("Query payload of b from peer %s returned %s", proposalResponse.getPeer().getName(), payload);
-                    //  assertEquals(payload, expect);
-                }
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-
-        }
-
-    }
 
     // Channel queries
 
@@ -400,8 +289,8 @@ public class RunChannel {
 
                     ///////////////
                     /// Send transaction proposal to all peers
-
-                    SendtTansactionToPeers(client,channel,chaincodeID);
+                    Transaction trans=new Transaction();
+                    trans.SendtTansactionToPeers(client,channel,chaincodeID,new String[]{"init","100","100","1"});
                     ////////////////////////////
                     // Send Transaction Transaction to orderer
                     out("Sending chaincode transaction(move a,b,100) to orderer.");
@@ -427,7 +316,8 @@ public class RunChannel {
                     ////////////////////////////
                     // Send Query Proposal to all peers
                     //
-                    SendQuryToPeers(client,channel,chaincodeID,delta);
+                    Query query=new Query();
+                    query.SendQuryToPeers(client,channel,chaincodeID,new String[]{"query","100"});
 
                     return null;
                 } catch (Exception e) {

@@ -85,10 +85,10 @@ public class End2end {
             HFClient client = setup.SetupClient();
 
 
-            setup.SetupUsers(sampleorgs);
-            RunChannel runchannel=new RunChannel(testConfig);
+            setup.InitUsers(sampleorgs);
+            RunChannel runchannel=new RunChannel();
             SampleOrg sampleOrg = testConfig.getIntegrationTestsSampleOrg("peerOrg1");
-            Channel fooChannel = reconstructChannel(testConfig.FOO_CHANNEL_NAME, client, sampleOrg);
+            Channel fooChannel = constructChannel(testConfig.FOO_CHANNEL_NAME, client, sampleOrg);
             System.out.println("we have run channel!!!"+fooChannel);
             runchannel. runChannel(client, fooChannel, true, sampleOrg, 0);
             System.out.println("we have run channel");
@@ -96,7 +96,7 @@ public class End2end {
             out("\n");
 
             sampleOrg = testConfig.getIntegrationTestsSampleOrg("peerOrg2");
-            Channel barChannel = reconstructChannel(testConfig.BAR_CHANNEL_NAME, client, sampleOrg);
+            Channel barChannel = constructChannel(testConfig.BAR_CHANNEL_NAME, client, sampleOrg);
             runchannel.runChannel(client, barChannel, true, sampleOrg, 100); //run a newly constructed bar channel with different b value!
             //let bar channel just shutdown so we have both scenarios.
 
