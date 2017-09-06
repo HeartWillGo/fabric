@@ -498,6 +498,7 @@ public class RunChannel {
             //    fail("Test failed with error : " + e.getMessage());
         }
     }
+
     static void out(String format, Object... args) {
 
         System.err.flush();
